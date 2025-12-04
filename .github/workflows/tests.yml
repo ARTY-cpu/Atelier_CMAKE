@@ -19,23 +19,41 @@ jobs:
           path: build
 
   Test_Add:
-    name: Test_Add
     runs-on: ubuntu-latest
     needs: Compilation
     steps:
-      - uses: actions/checkout@v4
-      - name: Download build
-        uses: actions/download-artifact@v4
-        with:
-          name: build-artifact
-          path: build
-      - name: Fix permissions
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build
         run: |
-          if [ -f build/src/calculator ]; then chmod +x build/src/calculator; fi
-      - name: Run Test_Add
+          mkdir -p build
+          cd build
+          cmake ..
+          make
+
+      - name: Run test "add" and capture report
         run: |
           cd build
-          ctest -R t1 -V
+          set -e
+          echo "== Test add 10 5 ==" > report.txt
+          ./src/calculator add 10 5 | tee -a report.txt
+          echo "Exit code: $?" >> report.txt
+
+      - name: Upload report as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-add-report
+          path: build/report.txt      # <-- le fichier à récupérer
+          retention-days: 14          # optionnel
+
+      - name: Job summary (facultatif mais pratique)
+        run: |
+          echo "### Résultat du test *add*" >> $GITHUB_STEP_SUMMARY
+          echo '' >> $GITHUB_STEP_SUMMARY
+          echo '\n' >> $GITHUB_STEP_SUMMARY
+          cat build/report.txt >> $GITHUB_STEP_SUMMARY
+          echo '\n' >> $GITHUB_STEP_SUMMARY
 
   Test_Sub:
     name: Test_Sub
@@ -95,23 +113,58 @@ jobs:
           ctest -R t4 -V
 
   Test_Car:
-    name: Test_Car
     runs-on: ubuntu-latest
     needs: Compilation
     steps:
-      - uses: actions/checkout@v4
-      - name: Download build
-        uses: actions/download-artifact@v4
-        with:
-          name: build-artifact
-          path: build
-      - name: Fix permissions
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build
         run: |
-          if [ -f build/src/calculator ]; then chmod +x build/src/calculator; fi
-      - name: Run Test_Car
+          mkdir -p build
+          cd build
+          cmake ..
+          make
+
+      - name: Run test "car" and capture report
         run: |
           cd build
-          ctest -R t5 -V
+          set -e
+          echo "== Test car 5 ==" > report.txt
+          ./src/calculator car 5 | tee -a report.txt
+          echo "Exit code: $?" >> report.txt
+
+      - name: Upload report as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-car-report
+          path: build/report.txt
+          retention-days: 14
+
+      - name: Job summary (facultatif)
+        run: |
+          echo "### Résultat du test *car*" >> $GITHUB_STEP_SUMMARY
+          echo '' >> $GITHUB_STEP_SUMMARY
+          echo '\n' >> $GITHUB_STEP_SUMMARY
+          cat build/report.txt >> $GITHUB_STEP_SUMMARY
+          echo '\n' >> $GITHUB_STEP_SUMMARY
+
+  Fetch_Car_Report:
+    name: Fetch_Car_Report
+    runs-on: ubuntu-latest
+    needs: Test_Car
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Download test-car-report artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: test-car-report
+          path: downloaded_report
+      - name: Show downloaded report
+        run: |
+          echo "Contents of downloaded report:"
+          cat downloaded_report/report.txt
 
   Deploy:
     name: Deploy
