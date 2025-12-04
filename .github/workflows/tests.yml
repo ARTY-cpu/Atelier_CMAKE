@@ -29,6 +29,9 @@ jobs:
         with:
           name: build-artifact
           path: build
+      - name: Fix permissions
+        run: |
+          if [ -f build/src/calculator ]; then chmod +x build/src/calculator; fi
       - name: Run Test_Add
         run: |
           cd build
@@ -45,6 +48,9 @@ jobs:
         with:
           name: build-artifact
           path: build
+      - name: Fix permissions
+        run: |
+          if [ -f build/src/calculator ]; then chmod +x build/src/calculator; fi
       - name: Run Test_Sub
         run: |
           cd build
@@ -61,6 +67,9 @@ jobs:
         with:
           name: build-artifact
           path: build
+      - name: Fix permissions
+        run: |
+          if [ -f build/src/calculator ]; then chmod +x build/src/calculator; fi
       - name: Run Test_Mul
         run: |
           cd build
@@ -77,6 +86,9 @@ jobs:
         with:
           name: build-artifact
           path: build
+      - name: Fix permissions
+        run: |
+          if [ -f build/src/calculator ]; then chmod +x build/src/calculator; fi
       - name: Run Test_Div
         run: |
           cd build
@@ -93,6 +105,9 @@ jobs:
         with:
           name: build-artifact
           path: build
+      - name: Fix permissions
+        run: |
+          if [ -f build/src/calculator ]; then chmod +x build/src/calculator; fi
       - name: Run Test_Car
         run: |
           cd build
